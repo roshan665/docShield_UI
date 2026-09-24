@@ -8,7 +8,17 @@ const env = (typeof import.meta !== 'undefined' && import.meta.env)
   ? import.meta.env
   : (typeof process !== 'undefined' && process.env ? process.env : {});
 
-export const API_BASE_URL = env.VITE_API_URL || 'http://localhost:8000/api/v1';
+function resolveApiBaseUrl() {
+  const raw = env.VITE_API_URL || 'http://localhost:8000/api/v1';
+  const trimmed = String(raw).trim().replace(/\/+$/, '');
+  // If the user provided the domain without /api/v1 (e.g. https://docshield-api.onrender.com)
+  if (!trimmed.endsWith('/api/v1')) {
+    return `${trimmed}/api/v1`;
+  }
+  return trimmed;
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiError extends Error {
   constructor(message, status = 500, code = 'INTERNAL_ERROR', details = null) {

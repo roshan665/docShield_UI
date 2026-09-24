@@ -1,3 +1,16 @@
+import os
+import sys
+from pathlib import Path
+
+# Ensure both repository root and backend directory are always in sys.path
+_current_file = Path(__file__).resolve()
+_backend_dir = _current_file.parent.parent  # backend/
+_repo_root = _backend_dir.parent            # repo root
+
+for _p in [str(_repo_root), str(_backend_dir)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 import logging
 from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -28,6 +41,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -108,8 +122,31 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 
+# Optional: Serve SPA frontend if SERVE_STATIC_FRONTEND is enabled (unified single-service deployment)
+_dist_dir = _repo_root / "dist"
+if settings.SERVE_STATIC_FRONTEND and _dist_dir.exists() and (_dist_dir / "index.html").exists():
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.responses import FileResponse
+
+    _assets_dir = _dist_dir / "assets"
+    if _assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(_assets_dir)), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+            raise HTTPException(status_code=404, detail="Not Found")
+        file_path = _dist_dir / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(_dist_dir / "index.html")
+
+
 @app.get("/", tags=["Root"])
 def root():
+    if settings.SERVE_STATIC_FRONTEND and _dist_dir.exists() and (_dist_dir / "index.html").exists():
+        from fastapi.responses import FileResponse
+        return FileResponse(_dist_dir / "index.html")
     return {
         "name": settings.PROJECT_NAME,
         "version": settings.VERSION,

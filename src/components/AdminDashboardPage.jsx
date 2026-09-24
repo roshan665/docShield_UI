@@ -366,7 +366,8 @@ export default function AdminDashboardPage({
               View All
             </span>
           </div>
-          <table className="admin-cases-table">
+          <div className="admin-table-responsive">
+            <table className="admin-cases-table">
             <thead>
               <tr>
                 <th>Case No.</th>
@@ -405,6 +406,7 @@ export default function AdminDashboardPage({
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Quick Actions Card */}

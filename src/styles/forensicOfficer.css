@@ -5,9 +5,12 @@
    ======================================================== */
 
 .forensic-page-container {
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 28px 28px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* ========================================================
@@ -77,13 +80,13 @@
 .forensic-kpi-grid,
 .forensic-summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 22px;
 }
 
 .forensic-kpi-grid.four-cols {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .forensic-kpi-card,
@@ -98,6 +101,7 @@
   transition: all 0.15s ease;
   position: relative;
   overflow: hidden;
+  min-width: 0;
 }
 
 .forensic-kpi-card:hover,
@@ -824,4 +828,38 @@
   border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 10px 14px;
+}
+
+/* ========================================================
+   RESPONSIVENESS FOR FORENSIC OFFICER
+   ======================================================== */
+@media (max-width: 1200px) {
+  .forensic-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .forensic-page-container {
+    padding: 0 16px 20px;
+  }
+  .forensic-kpi-grid,
+  .forensic-kpi-grid.four-cols {
+    grid-template-columns: 1fr;
+  }
+  .forensic-toolbar-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .forensic-toolbar-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .forensic-filter-select {
+    width: 100%;
+  }
+  .forensic-kv-grid,
+  .forensic-kv-grid.three-col {
+    grid-template-columns: 1fr;
+  }
 }

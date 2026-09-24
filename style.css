@@ -63,6 +63,12 @@
   padding: 0;
 }
 
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-page);
@@ -71,8 +77,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* ========================================================
@@ -85,18 +103,23 @@ body {
   top: 0;
   z-index: 100;
   height: 64px;
+  width: 100%;
+  max-width: 100%;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
 }
 
 .nav-container {
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 24px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 12px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Brand Section */
@@ -146,23 +169,33 @@ body {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex-grow: 1;
-  margin-left: 12px;
+  gap: 2px;
+  flex: 1 1 0%;
+  min-width: 0;
+  margin-left: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-menu::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  font-size: 13px;
+  gap: 5px;
+  padding: 7px 10px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--text-muted);
   text-decoration: none;
   border-radius: var(--radius-sm);
   transition: all 0.15s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-item:hover {
@@ -325,6 +358,8 @@ body {
   display: flex;
   flex-direction: column;
   text-align: left;
+  max-width: 180px;
+  min-width: 0;
 }
 
 .profile-role {
@@ -332,12 +367,18 @@ body {
   font-weight: 700;
   color: var(--text-dark);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-station {
   font-size: 11px;
   color: var(--text-muted);
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chevron-icon {
@@ -526,12 +567,19 @@ body {
 .dashboard-main {
   flex-grow: 1;
   padding: 26px 0 36px 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .main-container {
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 28px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 
@@ -637,7 +685,7 @@ body {
    ======================================================== */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -747,7 +795,7 @@ body {
    ======================================================== */
 .main-columns-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 20px;
   align-items: start;
 }
@@ -756,6 +804,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
 /* Universal Content Card */
@@ -765,6 +814,8 @@ body {
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   box-shadow: var(--shadow-card);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Card Header Bar */
@@ -1205,6 +1256,7 @@ body {
 }
 
 .footer-container {
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 28px;
@@ -1213,6 +1265,8 @@ body {
   justify-content: space-between;
   font-size: 12px;
   color: var(--text-light);
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .footer-right {

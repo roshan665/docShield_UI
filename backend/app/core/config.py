@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     # Frontend CORS
     FRONTEND_URL: str = "http://localhost:5173"
     ALLOWED_ORIGINS: Union[List[str], str] = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
+    CORS_ORIGIN_REGEX: Optional[str] = r"^https:\/\/.*\.onrender\.com$"
+    SERVE_STATIC_FRONTEND: bool = False
 
     # Supabase Configuration
     SUPABASE_URL: str = ""
@@ -40,7 +42,11 @@ class Settings(BaseSettings):
             origins = [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
         else:
             origins = list(self.ALLOWED_ORIGINS)
-        
+
+        # Ensure FRONTEND_URL is included if specified
+        if self.FRONTEND_URL and self.FRONTEND_URL != "*" and self.FRONTEND_URL not in origins:
+            origins.append(self.FRONTEND_URL)
+
         # Security Guard: When credentials are enabled or in production, reject wildcard "*"
         if self.is_production or "*" in origins:
             cleaned = [o for o in origins if o != "*"]

@@ -4,9 +4,11 @@
    ======================================================== */
 
 .admin-dashboard-container {
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 28px 24px;
+  box-sizing: border-box;
 }
 
 /* ========================================================
@@ -64,7 +66,7 @@
    ======================================================== */
 .admin-summary-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 20px;
 }
@@ -79,6 +81,7 @@
   box-shadow: 0 1px 3px rgba(18, 43, 73, 0.02);
   transition: all 0.15s ease;
   cursor: pointer;
+  min-width: 0;
 }
 
 .admin-summary-card:hover {
@@ -140,7 +143,7 @@
    ======================================================== */
 .admin-middle-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -153,6 +156,7 @@
   padding: 18px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .admin-card-header-row {
@@ -341,8 +345,14 @@
    ======================================================== */
 .admin-bottom-grid {
   display: grid;
-  grid-template-columns: 1.55fr 1.45fr;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1.45fr);
   gap: 16px;
+}
+
+.admin-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Recent Cases Table */

@@ -4,9 +4,12 @@
    ======================================================== */
 
 .evidence-page-container {
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 28px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* ========================================================
@@ -67,7 +70,7 @@
    ======================================================== */
 .evidence-category-strip {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -84,6 +87,7 @@
   transition: all 0.15s ease;
   position: relative;
   text-align: left;
+  min-width: 0;
 }
 
 .ev-cat-card:hover {
