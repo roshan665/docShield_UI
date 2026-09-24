@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+// src/components/Navbar.jsx
+// DocShield Enterprise Top Navigation Header
+// Reusable, compact, responsive horizontal header matching reference specification
+
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ 
@@ -19,22 +23,255 @@ export default function Navbar({
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const [hasUnread, setHasUnread] = useState(true);
+
+  // Viewport resize tracking for intelligent overflow adaptation
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1600
+  );
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (!e.target.closest('.nav-more-wrap')) {
+        setMoreOpen(false);
+      }
+      if (!e.target.closest('.nav-notif-wrap')) {
+        setNotifOpen(false);
+      }
+      if (!e.target.closest('.nav-profile-wrap')) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const isAdmin = currentRole === 'admin';
   const isLegal = currentRole === 'legal' || currentRole === 'legal_officer';
   const isForensic = currentRole === 'forensic' || currentRole === 'forensic_officer';
 
+  // Navigation Items Definitions
+  const dashboardItem = {
+    id: isAdmin ? 'adminDashboard' : 'dashboard',
+    label: 'Dashboard',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9.5L10 3L17 9.5V17C17 17.5 16.5 18 16 18H4C3.5 18 3 17.5 3 17V9.5Z"/>
+        <path d="M8 18V11H12V18"/>
+      </svg>
+    )
+  };
+
+  const usersItem = {
+    id: 'users',
+    label: 'Users',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 17v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 15.5V17"/>
+        <circle cx="10" cy="6.5" r="3.5"/>
+      </svg>
+    )
+  };
+
+  const casesItem = {
+    id: 'cases',
+    label: 'Cases',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="6" width="14" height="11" rx="2"/>
+        <path d="M7 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+        <path d="M3 10.5h14"/>
+      </svg>
+    )
+  };
+
+  const documentsItem = {
+    id: 'documents',
+    label: 'Documents',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5z"/>
+        <polyline points="12 2 12 7 17 7"/>
+        <line x1="7" y1="11" x2="13" y2="11"/>
+        <line x1="7" y1="15" x2="11" y2="15"/>
+      </svg>
+    )
+  };
+
+  const evidenceItem = {
+    id: 'evidence',
+    label: 'Evidence',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10 2.5L3.5 6.25V13.75L10 17.5L16.5 13.75V6.25L10 2.5Z"/>
+        <path d="M10 2.5V17.5M3.5 6.25L10 10L16.5 6.25"/>
+      </svg>
+    )
+  };
+
+  const forensicItem = {
+    id: 'forensic',
+    label: 'Forensic Reports',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 3h6M10 3v5M6 17h8M10 8L6 14a2 2 0 0 0 1.7 3h4.6a2 2 0 0 0 1.7-3L10 8z"/>
+      </svg>
+    )
+  };
+
+  const chargeSheetsItem = {
+    id: 'chargeSheets',
+    label: 'Charge Sheets',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5z"/>
+        <polyline points="12 2 12 7 17 7"/>
+        <path d="M8 12l2 2 4-4"/>
+      </svg>
+    )
+  };
+
+  const courtFilingsItem = {
+    id: 'courtFilings',
+    label: 'Court Filings',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 7l8-4 8 4M3 7v9M7 7v9M11 7v9M15 7v9M1 16h18M1 19h18"/>
+      </svg>
+    )
+  };
+
+  const custodyItem = {
+    id: 'custody',
+    label: 'Chain of Custody',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="9" width="12" height="9" rx="2"/>
+        <path d="M7 9V6a3 3 0 0 1 6 0v3"/>
+        <circle cx="10" cy="13.5" r="1" fill="currentColor"/>
+      </svg>
+    )
+  };
+
+  const auditLogsItem = {
+    id: 'auditLogs',
+    label: 'Audit Logs',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10 2L3 5v6c0 5 7 7 7 7s7-2 7-7V5l-7-3z"/>
+        <polyline points="10 7 10 10 12 12"/>
+      </svg>
+    )
+  };
+
+  const settingsItem = {
+    id: 'settings',
+    label: 'Settings',
+    icon: (
+      <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="10" cy="10" r="3"/>
+        <path d="M16.5 10c0-.3-.02-.6-.07-.9l1.64-1.28a.4.4 0 0 0 .1-.51l-1.55-2.68a.4.4 0 0 0-.49-.17l-1.93.78a5.5 5.5 0 0 0-1.56-.9l-.3-2.06A.4.4 0 0 0 12 2h-3.1a.4.4 0 0 0-.4.38l-.3 2.06c-.56.24-1.08.54-1.56.9l-1.93-.78a.4.4 0 0 0-.49.17L2.67 7.41a.4.4 0 0 0 .1.51l1.64 1.28c-.05.3-.07.6-.07.9s.02.6.07.9l-1.64 1.28a.4.4 0 0 0-.1.51l1.55 2.68c.11.2.35.27.49.17l1.93-.78c.48.36 1 .66 1.56.9l.3 2.06c.04.22.21.38.4.38H12c.2 0 .37-.16.4-.38l.3-2.06c.56-.24 1.08-.54 1.56-.9l1.93.78c.14.1.38.03.49-.17l1.55-2.68a.4.4 0 0 0-.1-.51l-1.64-1.28c.05-.3.07-.6.07-.9z"/>
+      </svg>
+    )
+  };
+
+  // Compile role-permitted items
+  let basePrimary = [];
+  let baseMore = [custodyItem, auditLogsItem];
+
+  if (isAdmin) {
+    basePrimary = [
+      dashboardItem,
+      usersItem,
+      casesItem,
+      documentsItem,
+      evidenceItem,
+      forensicItem,
+      chargeSheetsItem,
+      courtFilingsItem
+    ];
+    baseMore.push(settingsItem);
+  } else if (isForensic) {
+    basePrimary = [
+      dashboardItem,
+      casesItem,
+      evidenceItem,
+      forensicItem,
+      documentsItem
+    ];
+  } else {
+    // Inspector & Legal Officer
+    basePrimary = [
+      dashboardItem,
+      casesItem,
+      documentsItem,
+      evidenceItem,
+      forensicItem,
+      chargeSheetsItem,
+      courtFilingsItem
+    ];
+  }
+
+  // Responsive item distribution: fold secondary items into "More" on narrower screens
+  let visiblePrimary = [...basePrimary];
+  let visibleMore = [...baseMore];
+
+  if (windowWidth < 1440 && visiblePrimary.some(i => i.id === 'courtFilings')) {
+    visiblePrimary = visiblePrimary.filter(i => i.id !== 'courtFilings');
+    visibleMore.unshift(courtFilingsItem);
+  }
+  if (windowWidth < 1340 && visiblePrimary.some(i => i.id === 'chargeSheets')) {
+    visiblePrimary = visiblePrimary.filter(i => i.id !== 'chargeSheets');
+    visibleMore.unshift(chargeSheetsItem);
+  }
+  if (windowWidth < 1220 && visiblePrimary.some(i => i.id === 'forensic')) {
+    visiblePrimary = visiblePrimary.filter(i => i.id !== 'forensic');
+    visibleMore.unshift(forensicItem);
+  }
+
+  const isItemActive = (id) => {
+    if (id === 'adminDashboard' || id === 'dashboard') {
+      return activePage === 'adminDashboard' || activePage === 'dashboard';
+    }
+    return activePage === id;
+  };
+
+  const isMoreActive = visibleMore.some(item => isItemActive(item.id));
+
+  // Officer display credentials
+  const displayName = isAdmin 
+    ? "Admin" 
+    : isForensic 
+      ? (profile?.full_name || "Dr. K.S. Rathore") 
+      : isLegal 
+        ? (profile?.full_name || "Adv. Arvind Joshi") 
+        : (profile?.full_name || "Insp. Rajesh Kumar");
+
+  const displayDept = isAdmin 
+    ? "MP Police Headquarters, IT Security" 
+    : (profile?.station_or_lab || activePersona.organization);
+
   return (
     <header className="top-navbar">
       <div className="nav-container">
         
-        {/* Brand Logo & Tagline */}
+        {/* ==================================================================
+            1. LEFT BRAND SECTION
+           ================================================================== */}
         <div 
           className="nav-brand" 
           onClick={() => setActivePage(isAdmin ? 'adminDashboard' : 'dashboard')} 
           style={{ cursor: 'pointer' }}
+          title="DocShield Home"
         >
           <div className="brand-logo-wrap">
             <svg className="shield-logo" viewBox="0 0 36 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,232 +285,89 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Top Navigation Menu */}
+        {/* ==================================================================
+            2. CENTER NAVIGATION LINKS (Clean pill active state, outline icons)
+           ================================================================== */}
         <nav className="nav-menu">
-          {/* Dashboard */}
-          <div className={`nav-item-wrapper ${(activePage === 'adminDashboard' || activePage === 'dashboard') ? 'active-wrapper' : ''}`}>
-            <button 
-              className={`nav-item ${(activePage === 'adminDashboard' || activePage === 'dashboard') ? 'active' : ''}`}
-              onClick={() => setActivePage(isAdmin ? 'adminDashboard' : 'dashboard')}
-            >
-              <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9.5L10 3L17 9.5V17C17 17.5 16.5 18 16 18H4C3.5 18 3 17.5 3 17V9.5Z"/>
-                <path d="M8 18V11H12V18"/>
-              </svg>
-              <span>Dashboard</span>
-            </button>
-            {(activePage === 'adminDashboard' || activePage === 'dashboard') && <span className="nav-active-bar"></span>}
-          </div>
-
-          {/* Admin-only "Users" Item */}
-          {isAdmin && (
-            <div className={`nav-item-wrapper ${activePage === 'users' ? 'active-wrapper' : ''}`}>
+          {visiblePrimary.map((item) => {
+            const active = isItemActive(item.id);
+            return (
               <button 
-                className={`nav-item ${activePage === 'users' ? 'active' : ''}`}
-                onClick={() => setActivePage('users')}
+                key={item.id}
+                className={`nav-link-btn nav-item ${active ? 'active' : ''}`}
+                onClick={() => {
+                  setActivePage(item.id);
+                  setMoreOpen(false);
+                }}
+                title={item.label}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+
+          {/* More Dropdown for Secondary & Folded Items */}
+          {visibleMore.length > 0 && (
+            <div className="nav-more-wrap">
+              <button
+                className={`nav-link-btn nav-item nav-more-btn ${isMoreActive ? 'active' : ''} ${moreOpen ? 'open' : ''}`}
+                onClick={() => {
+                  setMoreOpen(!moreOpen);
+                  setNotifOpen(false);
+                  setProfileOpen(false);
+                }}
+                title="More options"
               >
                 <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 19v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M19 11a3 3 0 0 0-2.5-2.9M19 14.5a3 3 0 0 0-1.5-.5"/>
+                  <circle cx="4" cy="10" r="1.5"/>
+                  <circle cx="10" cy="10" r="1.5"/>
+                  <circle cx="16" cy="10" r="1.5"/>
                 </svg>
-                <span>Users</span>
-              </button>
-              {activePage === 'users' && <span className="nav-active-bar"></span>}
-            </div>
-          )}
-
-          {/* Cases */}
-          <div className={`nav-item-wrapper ${activePage === 'cases' ? 'active-wrapper' : ''}`}>
-            <button 
-              className={`nav-item ${activePage === 'cases' ? 'active' : ''}`}
-              onClick={() => setActivePage('cases')}
-            >
-              <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="5" width="16" height="12" rx="2"/>
-                <path d="M7 5V3C7 2.4 7.4 2 8 2H12C12.6 2 13 2.4 13 3V5"/>
-                <path d="M2 10H18"/>
-              </svg>
-              <span>Cases</span>
-            </button>
-            {activePage === 'cases' && <span className="nav-active-bar"></span>}
-          </div>
-
-          {/* Evidence (For Forensic Officer, Evidence comes before Documents per specifications) */}
-          {isForensic && (
-            <div className={`nav-item-wrapper ${activePage === 'evidence' ? 'active-wrapper' : ''}`}>
-              <button 
-                className={`nav-item ${activePage === 'evidence' ? 'active' : ''}`}
-                onClick={() => setActivePage('evidence')}
-              >
-                <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 6.5L10 2.5L3 6.5V13.5L10 17.5L17 13.5V6.5Z"/>
-                  <path d="M10 2.5V17.5M3 6.5L10 10.5L17 6.5"/>
+                <span>More</span>
+                <svg className={`nav-chevron ${moreOpen ? 'open' : ''}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 6L8 10L12 6"/>
                 </svg>
-                <span>Evidence</span>
               </button>
-              {activePage === 'evidence' && <span className="nav-active-bar"></span>}
-            </div>
-          )}
 
-          {/* Forensic Reports (For Forensic Officer, Forensic Reports comes next) */}
-          {isForensic && (
-            <div className={`nav-item-wrapper ${activePage === 'forensic' ? 'active-wrapper' : ''}`}>
-              <button 
-                className={`nav-item ${activePage === 'forensic' ? 'active' : ''}`}
-                onClick={() => setActivePage('forensic')}
-              >
-                <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 3H11M10 3V8M6 17H14M10 8L6 14C5 15.5 6 17 8 17H12C14 17 15 15.5 14 14L10 8Z"/>
-                </svg>
-                <span>Forensic Reports</span>
-              </button>
-              {activePage === 'forensic' && <span className="nav-active-bar"></span>}
-            </div>
-          )}
-
-          {/* Documents */}
-          <div className={`nav-item-wrapper ${activePage === 'documents' ? 'active-wrapper' : ''}`}>
-            <button 
-              className={`nav-item ${activePage === 'documents' ? 'active' : ''}`}
-              onClick={() => setActivePage('documents')}
-            >
-              <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2H5C4.4 2 4 2.4 4 3V17C4 17.6 4.4 18 5 18H15C15.6 18 16 17.6 16 17V6L12 2Z"/>
-                <path d="M12 2V6H16"/>
-                <path d="M8 10H12M8 14H12"/>
-              </svg>
-              <span>Documents</span>
-            </button>
-            {activePage === 'documents' && <span className="nav-active-bar"></span>}
-          </div>
-
-          {/* Evidence (For Non-Forensic roles) */}
-          {!isForensic && (
-            <div className={`nav-item-wrapper ${activePage === 'evidence' ? 'active-wrapper' : ''}`}>
-              <button 
-                className={`nav-item ${activePage === 'evidence' ? 'active' : ''}`}
-                onClick={() => setActivePage('evidence')}
-              >
-                <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 6.5L10 2.5L3 6.5V13.5L10 17.5L17 13.5V6.5Z"/>
-                  <path d="M10 2.5V17.5M3 6.5L10 10.5L17 6.5"/>
-                </svg>
-                <span>Evidence</span>
-              </button>
-              {activePage === 'evidence' && <span className="nav-active-bar"></span>}
-            </div>
-          )}
-
-          {/* Forensic Reports (For Non-Forensic roles) */}
-          {!isForensic && (
-            <div className={`nav-item-wrapper ${activePage === 'forensic' ? 'active-wrapper' : ''}`}>
-              <button 
-                className={`nav-item ${activePage === 'forensic' ? 'active' : ''}`}
-                onClick={() => setActivePage('forensic')}
-              >
-                <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 3H11M10 3V8M6 17H14M10 8L6 14C5 15.5 6 17 8 17H12C14 17 15 15.5 14 14L10 8Z"/>
-                </svg>
-                <span>Forensic Reports</span>
-              </button>
-              {activePage === 'forensic' && <span className="nav-active-bar"></span>}
-            </div>
-          )}
-
-          {/* Charge Sheets (Available to Admin, Inspector, Legal Officer) */}
-          {!isForensic && (
-            <div className={`nav-item-wrapper ${activePage === 'chargeSheets' ? 'active-wrapper' : ''}`}>
-              <button 
-                className={`nav-item ${activePage === 'chargeSheets' ? 'active' : ''}`}
-                onClick={() => setActivePage('chargeSheets')}
-              >
-                <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 4H16V16H4V4Z"/>
-                  <path d="M4 8H16M8 4V16"/>
-                </svg>
-                <span>Charge Sheets</span>
-              </button>
-              {activePage === 'chargeSheets' && <span className="nav-active-bar"></span>}
-            </div>
-          )}
-
-          {/* Court Filings (Available to Admin, Inspector, Legal Officer) */}
-          {!isForensic && (
-            <div className={`nav-item-wrapper ${activePage === 'courtFilings' ? 'active-wrapper' : ''}`}>
-              <button 
-                className={`nav-item ${activePage === 'courtFilings' ? 'active' : ''}`}
-                onClick={() => setActivePage('courtFilings')}
-              >
-                <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 6h14M3 10h14M3 14h14M10 2L2 6v12h16V6l-8-4z"/>
-                </svg>
-                <span>Court Filings</span>
-              </button>
-              {activePage === 'courtFilings' && <span className="nav-active-bar"></span>}
-            </div>
-          )}
-
-          {/* Chain of Custody */}
-          <div className={`nav-item-wrapper ${activePage === 'custody' ? 'active-wrapper' : ''}`}>
-            <button 
-              className={`nav-item ${activePage === 'custody' ? 'active' : ''}`}
-              onClick={() => setActivePage('custody')}
-            >
-              <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="4" y="9" width="12" height="9" rx="2"/>
-                <path d="M7 9V6a3 3 0 0 1 6 0v3"/>
-                <circle cx="10" cy="13.5" r="1" fill="currentColor"/>
-              </svg>
-              <span>Chain of Custody</span>
-            </button>
-            {activePage === 'custody' && <span className="nav-active-bar"></span>}
-          </div>
-
-          {/* Audit Logs */}
-          <div className={`nav-item-wrapper ${activePage === 'auditLogs' ? 'active-wrapper' : ''}`}>
-            <button 
-              className={`nav-item ${activePage === 'auditLogs' ? 'active' : ''}`}
-              onClick={() => setActivePage('auditLogs')}
-            >
-              <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 2L3 5v6c0 5 7 7 7 7s7-2 7-7V5l-7-3z"/>
-                <polyline points="10 7 10 10 12 12"/>
-              </svg>
-              <span>Audit Logs</span>
-            </button>
-            {activePage === 'auditLogs' && <span className="nav-active-bar"></span>}
-          </div>
-
-          {/* Admin-only "Settings" Item */}
-          {isAdmin && (
-            <div className={`nav-item-wrapper ${activePage === 'settings' ? 'active-wrapper' : ''}`}>
-              <button 
-                className={`nav-item ${activePage === 'settings' ? 'active' : ''}`}
-                onClick={() => setActivePage('settings')}
-              >
-                <svg className="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="10" cy="10" r="3"/>
-                  <path d="M16.5 10c0-.3-.02-.6-.07-.9l1.64-1.28a.4.4 0 0 0 .1-.51l-1.55-2.68a.4.4 0 0 0-.49-.17l-1.93.78a5.5 5.5 0 0 0-1.56-.9l-.3-2.06A.4.4 0 0 0 12 2h-3.1a.4.4 0 0 0-.4.38l-.3 2.06c-.56.24-1.08.54-1.56.9l-1.93-.78a.4.4 0 0 0-.49.17L2.67 7.41a.4.4 0 0 0 .1.51l1.64 1.28c-.05.3-.07.6-.07.9s.02.6.07.9l-1.64 1.28a.4.4 0 0 0-.1.51l1.55 2.68c.11.2.35.27.49.17l1.93-.78c.48.36 1 .66 1.56.9l.3 2.06c.04.22.21.38.4.38H12c.2 0 .37-.16.4-.38l.3-2.06c.56-.24 1.08-.54 1.56-.9l1.93.78c.14.1.38.03.49-.17l1.55-2.68a.4.4 0 0 0-.1-.51l-1.64-1.28c.05-.3.07-.6.07-.9z"/>
-                </svg>
-                <span>Settings</span>
-              </button>
-              {activePage === 'settings' && <span className="nav-active-bar"></span>}
+              {moreOpen && (
+                <div className="nav-more-dropdown" onClick={(e) => e.stopPropagation()}>
+                  {visibleMore.map((item) => {
+                    const active = isItemActive(item.id);
+                    return (
+                      <button
+                        key={item.id}
+                        className={`nav-dropdown-item ${active ? 'active' : ''}`}
+                        onClick={() => {
+                          setActivePage(item.id);
+                          setMoreOpen(false);
+                        }}
+                      >
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </nav>
 
-        {/* Right Nav Utilities */}
+        {/* ==================================================================
+            3. RIGHT SECTION (Search Pill, Notification Bell, User Avatar)
+           ================================================================== */}
         <div className="nav-actions">
           
-          {/* Header Search Box */}
-          <div className="navbar-search-box">
-            <svg className="search-svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          {/* Compact Pill Search */}
+          <div className="nav-search-wrap">
+            <svg className="nav-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="9" r="6"/>
               <path d="M13.5 13.5L17.5 17.5"/>
             </svg>
             <input 
               type="text" 
+              className="nav-search-input"
               placeholder="Search..." 
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
@@ -285,13 +379,14 @@ export default function Navbar({
             />
           </div>
 
-          {/* Notification Bell */}
-          <div className="notification-wrap">
+          {/* Notification Bell with Red Badge */}
+          <div className="nav-notif-wrap">
             <button 
-              className="icon-btn notification-btn" 
-              title="Notifications"
+              className="nav-icon-btn notification-btn" 
+              title="System Alerts"
               onClick={() => {
                 setNotifOpen(!notifOpen);
+                setMoreOpen(false);
                 setProfileOpen(false);
               }}
             >
@@ -299,7 +394,7 @@ export default function Navbar({
                 <path d="M15 7C15 4.2 12.8 2 10 2C7.2 2 5 4.2 5 7C5 12 3 13.5 3 13.5H17C17 13.5 15 12 15 7Z"/>
                 <path d="M8.5 16.5C8.8 17.4 9.6 18 10.5 18C11.4 18 12.2 17.4 12.5 16.5"/>
               </svg>
-              {hasUnread && <span className="notif-badge">3</span>}
+              {hasUnread && <span className="nav-notif-badge">1</span>}
             </button>
 
             {notifOpen && (
@@ -334,29 +429,27 @@ export default function Navbar({
             )}
           </div>
 
-          {/* Profile Pill (Legal Officer, Admin, or Inspector) */}
-          <div className="profile-wrap">
+          {/* User Profile Pill */}
+          <div className="nav-profile-wrap">
             <button 
-              className="profile-btn" 
+              className="nav-profile-btn" 
               onClick={() => {
                 setProfileOpen(!profileOpen);
+                setMoreOpen(false);
                 setNotifOpen(false);
               }}
+              title="Officer Profile & Settings"
             >
               <img 
                 src={profile?.avatar_url || activePersona.avatar} 
-                alt={profile?.full_name || activePersona.name} 
-                className="profile-avatar" 
+                alt={displayName} 
+                className="nav-profile-avatar" 
               />
-              <div className="profile-info">
-                <span className="profile-role">
-                  {isForensic ? "Forensic Officer" : isLegal ? "Legal Officer" : isAdmin ? "Admin" : "Inspector"}
-                </span>
-                <span className="profile-station">
-                  {profile?.station_or_lab || activePersona.organization}
-                </span>
+              <div className="nav-profile-info">
+                <span className="nav-profile-name">{displayName}</span>
+                <span className="nav-profile-sub">{displayDept}</span>
               </div>
-              <svg className="chevron-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className={`nav-chevron ${profileOpen ? 'open' : ''}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 6L8 10L12 6"/>
               </svg>
             </button>
@@ -371,12 +464,12 @@ export default function Navbar({
                     {profile?.badge_id || activePersona.badge}
                   </div>
                   <div className="profile-dropdown-badge">
-                    {profile?.station_or_lab || activePersona.organization}
+                    {displayDept}
                   </div>
                 </div>
                 <div className="dropdown-divider"></div>
                 
-                {/* 4-Way Role Switcher */}
+                {/* 4-Way Role Switcher for instant audit verification */}
                 {setCurrentRole && (
                   <div style={{ padding: '6px 12px' }}>
                     <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748B', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
