@@ -38,7 +38,6 @@ services:
   - type: web
     name: docshield-frontend
     runtime: static
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     autoDeploy: true
