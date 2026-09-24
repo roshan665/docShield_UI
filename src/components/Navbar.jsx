@@ -186,7 +186,7 @@ export default function Navbar({
 
   // Compile role-permitted items
   let basePrimary = [];
-  let baseMore = [custodyItem, auditLogsItem];
+  let baseMore = [auditLogsItem];
 
   if (isAdmin) {
     basePrimary = [
@@ -199,15 +199,17 @@ export default function Navbar({
       chargeSheetsItem,
       courtFilingsItem
     ];
-    baseMore.push(settingsItem);
+    baseMore = [custodyItem, auditLogsItem, settingsItem];
   } else if (isForensic) {
     basePrimary = [
       dashboardItem,
       casesItem,
       evidenceItem,
+      custodyItem,
       forensicItem,
       documentsItem
     ];
+    baseMore = [auditLogsItem];
   } else {
     // Inspector & Legal Officer
     basePrimary = [
@@ -215,10 +217,12 @@ export default function Navbar({
       casesItem,
       documentsItem,
       evidenceItem,
+      custodyItem,
       forensicItem,
       chargeSheetsItem,
       courtFilingsItem
     ];
+    baseMore = [auditLogsItem];
   }
 
   // Responsive item distribution: fold secondary items into "More" on narrower screens
@@ -247,18 +251,50 @@ export default function Navbar({
 
   const isMoreActive = visibleMore.some(item => isItemActive(item.id));
 
-  // Officer display credentials
-  const displayName = isAdmin 
-    ? "Admin" 
-    : isForensic 
-      ? (profile?.full_name || "Dr. K.S. Rathore") 
-      : isLegal 
-        ? (profile?.full_name || "Adv. Arvind Joshi") 
-        : (profile?.full_name || "Insp. Rajesh Kumar");
+  // Officer display credentials dynamically bound to active role persona
+  const activeRolePersona = auth.ROLE_DETAILS?.[currentRole] || activePersona;
 
-  const displayDept = isAdmin 
-    ? "MP Police Headquarters, IT Security" 
-    : (profile?.station_or_lab || activePersona.organization);
+  // Check if profile belongs to the current active role
+  const isProfileRoleMatch = profile?.role && (
+    profile.role.toLowerCase() === currentRole.toLowerCase() ||
+    (profile.role === 'admin' && currentRole === 'admin') ||
+    (profile.role.includes('legal') && currentRole.includes('legal')) ||
+    (profile.role.includes('forensic') && currentRole.includes('forensic')) ||
+    (profile.role.includes('inspector') && currentRole.includes('inspector'))
+  );
+
+  const displayName = isProfileRoleMatch && profile?.full_name 
+    ? profile.full_name 
+    : (activeRolePersona?.name || (
+        isAdmin ? "System Administrator" :
+        isForensic ? "Dr. K.S. Rathore" :
+        isLegal ? "Adv. Arvind Joshi" : "Insp. Rajesh Kumar"
+      ));
+
+  const displayDept = isProfileRoleMatch && profile?.station_or_lab 
+    ? profile.station_or_lab 
+    : (activeRolePersona?.organization || (
+        isAdmin ? "MP Police Headquarters, IT Security" :
+        isForensic ? "Regional Forensic Science Laboratory, Bhopal" :
+        isLegal ? "Directorate of Public Prosecutions" : "Bhopal Central Police Station"
+      ));
+
+  const displayAvatar = (isProfileRoleMatch && profile?.avatar_url) 
+    ? profile.avatar_url 
+    : (activeRolePersona?.avatar || (
+        isForensic ? "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=120" :
+        isLegal ? "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=120" :
+        isAdmin ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" :
+        "/assets/inspector_avatar.jpg"
+      ));
+
+  const displayBadge = isProfileRoleMatch && profile?.badge_id 
+    ? profile.badge_id 
+    : (activeRolePersona?.badge || (
+        isAdmin ? "ADM-SYS-01" :
+        isForensic ? "RFSL-BPL-048" :
+        isLegal ? "DPO-BPL-204" : "INSP-BH-104"
+      ));
 
   return (
     <header className="top-navbar">
@@ -441,7 +477,7 @@ export default function Navbar({
               title="Officer Profile & Settings"
             >
               <img 
-                src={profile?.avatar_url || activePersona.avatar} 
+                src={displayAvatar} 
                 alt={displayName} 
                 className="nav-profile-avatar" 
               />
@@ -458,10 +494,10 @@ export default function Navbar({
               <div className="dropdown-panel profile-dropdown open" onClick={(e) => e.stopPropagation()}>
                 <div className="profile-dropdown-header">
                   <div className="profile-dropdown-name">
-                    {profile?.full_name || activePersona.name}
+                    {displayName}
                   </div>
                   <div className="profile-dropdown-sub">
-                    {profile?.badge_id || activePersona.badge}
+                    {displayBadge}
                   </div>
                   <div className="profile-dropdown-badge">
                     {displayDept}
