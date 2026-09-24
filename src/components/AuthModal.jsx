@@ -9,9 +9,8 @@ import { ROLES } from '../constants/roles';
 
 export default function AuthModal({ isOpen, onClose, showToast }) {
   const { signIn, loading: authLoading } = useAuth();
-  const isDev = Boolean(import.meta.env?.DEV);
-  const [email, setEmail] = useState(isDev ? 'admin@docshield.gov.in' : '');
-  const [password, setPassword] = useState(isDev ? '••••••••' : '');
+  const [email, setEmail] = useState('admin@docshield.gov.in');
+  const [password, setPassword] = useState('DocShield@2024');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -146,44 +145,42 @@ export default function AuthModal({ isOpen, onClose, showToast }) {
               />
             </div>
 
-            {/* Quick Officer Persona Selection for Testing & RBAC Verification (Development/Staging Only) */}
-            {isDev && (
-              <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-                  Select Role Persona (Verification Presets):
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  {DEMO_CREDENTIALS.map((cred) => {
-                    const isSelected = email.toLowerCase() === cred.email.toLowerCase();
-                    return (
-                      <button
-                        key={cred.email}
-                        type="button"
-                        onClick={() => handleQuickSelect(cred)}
-                        style={{
-                          padding: '8px 10px',
-                          border: isSelected ? '1.5px solid #1E6DEB' : '1px solid #E2E8F0',
-                          backgroundColor: isSelected ? '#EFF6FF' : '#F8FAFC',
-                          borderRadius: '6px',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        <div style={{ fontSize: '12px', fontWeight: 700, color: isSelected ? '#1E6DEB' : '#0F172A' }}>
-                          {cred.role === ROLES.ADMIN ? '🛡️ Admin' :
-                           cred.role === ROLES.INSPECTOR ? '👮 Inspector' :
-                           cred.role === ROLES.LEGAL ? '⚖️ Legal Officer' : '🔬 Forensic Officer'}
-                        </div>
-                        <div style={{ fontSize: '10.5px', color: '#64748B', marginTop: '2px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                          {cred.badge}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+            {/* Quick Officer Persona Selection for Demo & Evaluation */}
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+                Quick Access Officer Personas (Demo & Evaluation):
               </div>
-            )}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {DEMO_CREDENTIALS.map((cred) => {
+                  const isSelected = email.toLowerCase() === cred.email.toLowerCase();
+                  return (
+                    <button
+                      key={cred.email}
+                      type="button"
+                      onClick={() => handleQuickSelect(cred)}
+                      style={{
+                        padding: '8px 10px',
+                        border: isSelected ? '1.5px solid #1E6DEB' : '1px solid #E2E8F0',
+                        backgroundColor: isSelected ? '#EFF6FF' : '#F8FAFC',
+                        borderRadius: '6px',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: isSelected ? '#1E6DEB' : '#0F172A' }}>
+                        {cred.role === ROLES.ADMIN ? '🛡️ Admin' :
+                         cred.role === ROLES.INSPECTOR ? '👮 Inspector' :
+                         cred.role === ROLES.LEGAL ? '⚖️ Legal Officer' : '🔬 Forensic Officer'}
+                      </div>
+                      <div style={{ fontSize: '10.5px', color: '#64748B', marginTop: '2px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                        {cred.badge}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '12px', lineHeight: '1.4' }}>
               Protected by Supabase Auth with Row Level Security (RLS). All authentication attempts are logged to the immutable audit trail.
